@@ -3,7 +3,28 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { Theme, Language, UserProgress, UserRole } from '@/lib/data';
-import { demoStudent, translations } from '@/lib/data';
+import { demoStudent, translations, getLevelFromXP, getXPForNextLevel } from '@/lib/data';
+
+const STORAGE_KEY = 'dao-yu-101-progress';
+const THEME_KEY = 'dao-yu-101-theme';
+const LANG_KEY = 'dao-yu-101-language';
+
+function loadFromStorage<T>(key: string, fallback: T): T {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveToStorage<T>(key: string, value: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage full or unavailable
+  }
+}
 
 interface PlatformContextType {
   theme: Theme;
@@ -26,12 +47,27 @@ interface PlatformContextType {
 const PlatformContext = createContext<PlatformContextType | null>(null);
 
 export function PlatformProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('island');
-  const [language, setLanguageState] = useState<Language>('en');
-  const [user, setUser] = useState<UserProgress>(demoStudent);
+  const [theme, setThemeState] = useState<Theme>(() => loadFromStorage(THEME_KEY, 'island'));
+  const [language, setLanguageState] = useState<Language>(() => loadFromStorage(LANG_KEY, 'en'));
+  const [user, setUser] = useState<UserProgress>(() => loadFromStorage(STORAGE_KEY, demoStudent));
   const [currentRole, setCurrentRole] = useState<UserRole>('student');
   const [showXPGain, setShowXPGain] = useState<number | null>(null);
   const [showCoinGain, setShowCoinGain] = useState<number | null>(null);
+
+  // Save user progress to localStorage
+  useEffect(() => {
+    saveToStorage(STORAGE_KEY, user);
+  }, [user]);
+
+  // Save theme to localStorage
+  useEffect(() => {
+    saveToStorage(THEME_KEY, theme);
+  }, [theme]);
+
+  // Save language to localStorage
+  useEffect(() => {
+    saveToStorage(LANG_KEY, language);
+  }, [language]);
 
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);

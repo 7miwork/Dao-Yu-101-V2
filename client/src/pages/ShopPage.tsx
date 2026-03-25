@@ -1,11 +1,14 @@
 // Dao-Yu-101 Shop Page
 // Parents can purchase: Programming Archipelago, Bundles, Subscriptions
+// Students can purchase: Avatars, Themes with coins
 
 import { usePlatform } from '@/contexts/PlatformContext';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Check, Star, Zap, ShoppingCart, Lock, Crown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, Star, Zap, ShoppingCart, Lock, Crown, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+
+const SHOP_STORAGE_KEY = 'dao-yu-101-shop';
 
 interface ShopItem {
   id: string;
@@ -134,28 +137,98 @@ const SHOP_ITEMS: ShopItem[] = [
   },
 ];
 
+// Coin-based items for students
+interface CoinItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number; // in coins
+  icon: string;
+  color: string;
+  type: 'avatar' | 'theme';
+}
+
+const COIN_ITEMS: CoinItem[] = [
+  // Avatars
+  { id: 'avatar-knight', name: 'Knight Avatar', description: 'Brave knight ready for coding adventures!', price: 50, icon: '⚔️', color: '#C0C0C0', type: 'avatar' },
+  { id: 'avatar-wizard', name: 'Wizard Avatar', description: 'Magical coder with powerful spells!', price: 75, icon: '🧙', color: '#6A1B9A', type: 'avatar' },
+  { id: 'avatar-dragon', name: 'Dragon Avatar', description: 'Fierce dragon that breathes code!', price: 100, icon: '🐉', color: '#B71C1C', type: 'avatar' },
+  { id: 'avatar-robot', name: 'Robot Avatar', description: 'Mechanical genius of the archipelago!', price: 100, icon: '🤖', color: '#455A64', type: 'avatar' },
+  { id: 'avatar-ninja', name: 'Ninja Avatar', description: 'Silent coder strikes with precision!', price: 125, icon: '🥷', color: '#1a1a1a', type: 'avatar' },
+  { id: 'avatar-unicorn', name: 'Unicorn Avatar', description: 'Magical unicorn of coding dreams!', price: 150, icon: '🦄', color: '#E91E63', type: 'avatar' },
+  // Themes
+  { id: 'theme-ocean', name: 'Ocean Theme', description: 'Deep blue sea vibes for your dashboard!', price: 30, icon: '🌊', color: '#0277BD', type: 'theme' },
+  { id: 'theme-forest', name: 'Forest Theme', description: 'Green woodland atmosphere!', price: 30, icon: '🌲', color: '#2E7D32', type: 'theme' },
+  { id: 'theme-sunset', name: 'Sunset Theme', description: 'Warm orange and pink gradients!', price: 30, icon: '🌅', color: '#E65100', type: 'theme' },
+  { id: 'theme-galaxy', name: 'Galaxy Theme', description: 'Explore the cosmos while coding!', price: 50, icon: '🌌', color: '#311B92', type: 'theme' },
+  { id: 'theme-lava', name: 'Lava Theme', description: 'Hot molten rock style!', price: 50, icon: '🌋', color: '#BF360C', type: 'theme' },
+  { id: 'theme-ice', name: 'Ice Theme', description: 'Cool frozen aesthetic!', price: 50, icon: '❄️', color: '#00ACC1', type: 'theme' },
+];
+
 const TYPE_FILTERS = [
   { value: 'all', label: 'All Products' },
   { value: 'archipelago', label: '🏝️ Archipelagos' },
   { value: 'bundle', label: '📦 Bundles' },
   { value: 'subscription', label: '🔄 Subscriptions' },
+  { value: 'avatar', label: '👤 Avatars' },
+  { value: 'theme', label: '🎨 Themes' },
 ];
 
 export default function ShopPage() {
-  const { user, t } = usePlatform();
+  const { user, setUser, t } = usePlatform();
   const [filter, setFilter] = useState<string>('all');
-  const [purchased, setPurchased] = useState<string[]>(['programming-archipelago']);
+  const [purchased, setPurchased] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(SHOP_STORAGE_KEY) || '["programming-archipelago"]');
+    } catch {
+      return ['programming-archipelago'];
+    }
+  });
 
-  const filtered = filter === 'all' ? SHOP_ITEMS : SHOP_ITEMS.filter(i => i.type === filter);
+  // Save purchased items to localStorage
+  useEffect(() => {
+    localStorage.setItem(SHOP_STORAGE_KEY, JSON.stringify(purchased));
+  }, [purchased]);
 
-  const handlePurchase = (item: ShopItem) => {
+  // Determine which items to show based on filter
+  const getFilteredItems = () => {
+    if (filter === 'all') {
+      return [...SHOP_ITEMS, ...COIN_ITEMS];
+    }
+    if (filter === 'avatar' || filter === 'theme') {
+      return COIN_ITEMS.filter(i => i.type === filter);
+    }
+    return SHOP_ITEMS.filter(i => i.type === filter);
+  };
+
+  const filtered = getFilteredItems();
+
+  const handlePurchase = (item: ShopItem | CoinItem) => {
     if (purchased.includes(item.id)) {
       toast.info(`You already own ${item.name}!`);
       return;
     }
-    toast.success(`🎉 ${item.name} purchased! Start learning now.`, {
-      description: 'Demo mode — no real payment processed.',
-    });
+
+    // Check if it's a coin item
+    const isCoinItem = 'type' in item && (item.type === 'avatar' || item.type === 'theme');
+    
+    if (isCoinItem) {
+      const coinItem = item as CoinItem;
+      if (user.coins < coinItem.price) {
+        toast.error(`Not enough coins! You need ${coinItem.price} coins but have ${user.coins}.`);
+        return;
+      }
+      // Deduct coins
+      setUser(prev => ({ ...prev, coins: prev.coins - coinItem.price }));
+      toast.success(`🎉 ${coinItem.name} purchased with ${coinItem.price} coins!`, {
+        description: 'Check your profile to equip it!',
+      });
+    } else {
+      toast.success(`🎉 ${item.name} purchased! Start learning now.`, {
+        description: 'Demo mode — no real payment processed.',
+      });
+    }
+    
     setPurchased(prev => [...prev, item.id]);
   };
 
@@ -202,6 +275,10 @@ export default function ShopPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((item, i) => {
             const owned = purchased.includes(item.id);
+            const isCoinItem = 'type' in item && (item.type === 'avatar' || item.type === 'theme');
+            const shopItem = !isCoinItem ? item as ShopItem : null;
+            const coinItem = isCoinItem ? item as CoinItem : null;
+            
             return (
               <motion.div
                 key={item.id}
@@ -210,23 +287,23 @@ export default function ShopPage() {
                 transition={{ delay: i * 0.07 }}
                 className="relative flex flex-col rounded-sm overflow-hidden"
                 style={{
-                  border: `3px solid ${item.popular ? item.color : owned ? '#5DA832' : 'var(--border)'}`,
-                  boxShadow: item.popular ? `0 0 20px ${item.color}40, 4px 4px 0 rgba(0,0,0,0.2)` : '4px 4px 0 rgba(0,0,0,0.15)',
+                  border: `3px solid ${shopItem?.popular ? item.color : owned ? '#5DA832' : 'var(--border)'}`,
+                  boxShadow: shopItem?.popular ? `0 0 20px ${item.color}40, 4px 4px 0 rgba(0,0,0,0.2)` : '4px 4px 0 rgba(0,0,0,0.15)',
                   background: 'var(--card)',
                 }}
               >
                 {/* Badge */}
-                {(item.badge || item.popular || owned) && (
+                {(shopItem?.badge || shopItem?.popular || owned) && (
                   <div className="absolute top-3 right-3 z-10">
                     <span className="px-2 py-1 font-pixel text-white rounded-sm"
                       style={{
                         fontSize: '7px',
-                        background: owned ? '#5DA832' : item.popular ? item.color : '#FFD700',
+                        background: owned ? '#5DA832' : shopItem?.popular ? item.color : '#FFD700',
                         border: '2px solid rgba(0,0,0,0.2)',
                         boxShadow: '2px 2px 0 rgba(0,0,0,0.3)',
-                        color: owned ? 'white' : item.popular ? 'white' : '#1a1a1a',
+                        color: owned ? 'white' : shopItem?.popular ? 'white' : '#1a1a1a',
                       }}>
-                      {owned ? '✓ OWNED' : item.badge || (item.popular ? '⭐ POPULAR' : '')}
+                      {owned ? '✓ OWNED' : shopItem?.badge || (shopItem?.popular ? '⭐ POPULAR' : '')}
                     </span>
                   </div>
                 )}
@@ -238,27 +315,35 @@ export default function ShopPage() {
                   <p className="font-game text-sm text-muted-foreground">{item.description}</p>
                 </div>
 
-                {/* Features */}
-                <div className="p-5 flex-1">
-                  <ul className="space-y-2 mb-5">
-                    {item.features.map(f => (
-                      <li key={f} className="flex items-start gap-2 text-sm font-game">
-                        <Check size={14} className="mt-0.5 shrink-0" style={{ color: item.color }} />
-                        <span style={{ color: 'var(--foreground)' }}>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {/* Features (only for ShopItems) */}
+                {shopItem && (
+                  <div className="p-5 flex-1">
+                    <ul className="space-y-2 mb-5">
+                      {shopItem.features.map((f: string) => (
+                        <li key={f} className="flex items-start gap-2 text-sm font-game">
+                          <Check size={14} className="mt-0.5 shrink-0" style={{ color: item.color }} />
+                          <span style={{ color: 'var(--foreground)' }}>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Price + CTA */}
                 <div className="p-5 border-t" style={{ borderColor: 'var(--border)' }}>
                   <div className="flex items-end gap-2 mb-3">
-                    <span className="font-pixel" style={{ fontSize: '1.4rem', color: item.color }}>${item.price}</span>
-                    {item.originalPrice && (
-                      <span className="font-game text-sm text-muted-foreground line-through">${item.originalPrice}</span>
-                    )}
-                    {item.type === 'subscription' && (
-                      <span className="font-game text-xs text-muted-foreground">/{item.id.includes('monthly') ? 'mo' : item.id.includes('yearly') ? 'yr' : 'yr'}</span>
+                    {coinItem ? (
+                      <span className="font-pixel" style={{ fontSize: '1.4rem', color: item.color }}>🪙 {coinItem.price}</span>
+                    ) : (
+                      <>
+                        <span className="font-pixel" style={{ fontSize: '1.4rem', color: item.color }}>${shopItem?.price}</span>
+                        {shopItem?.originalPrice && (
+                          <span className="font-game text-sm text-muted-foreground line-through">${shopItem.originalPrice}</span>
+                        )}
+                        {shopItem?.type === 'subscription' && (
+                          <span className="font-game text-xs text-muted-foreground">/{item.id.includes('monthly') ? 'mo' : item.id.includes('yearly') ? 'yr' : 'yr'}</span>
+                        )}
+                      </>
                     )}
                   </div>
                   <button
@@ -273,6 +358,8 @@ export default function ShopPage() {
                   >
                     {owned ? (
                       <><Check size={14} /> OWNED</>
+                    ) : coinItem ? (
+                      <><Sparkles size={14} /> BUY WITH COINS</>
                     ) : (
                       <><ShoppingCart size={14} /> {t('shop.buy').toUpperCase()}</>
                     )}

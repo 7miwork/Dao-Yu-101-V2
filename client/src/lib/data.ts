@@ -269,14 +269,50 @@ export const programmingArchipelago: Archipelago = {
 
 // ─── ACHIEVEMENTS ─────────────────────────────────────────────────────────────
 export const achievements: Achievement[] = [
+  // Lesson milestones
   { id: 'first_lesson', name: 'First Step', description: 'Complete your first lesson', icon: '⭐', xpReward: 50, coinReward: 10, condition: 'lessons >= 1' },
+  { id: 'five_lessons', name: 'Getting Started', description: 'Complete 5 lessons', icon: '🌟', xpReward: 75, coinReward: 15, condition: 'lessons >= 5' },
   { id: 'code_warrior', name: 'Code Warrior', description: 'Complete 10 lessons', icon: '⚔️', xpReward: 100, coinReward: 25, condition: 'lessons >= 10' },
+  { id: 'dedicated_learner', name: 'Dedicated Learner', description: 'Complete 25 lessons', icon: '📚', xpReward: 200, coinReward: 50, condition: 'lessons >= 25' },
+  { id: 'coding_master', name: 'Coding Master', description: 'Complete 50 lessons', icon: '🎓', xpReward: 400, coinReward: 100, condition: 'lessons >= 50' },
+  { id: 'legendary_coder', name: 'Legendary Coder', description: 'Complete 100 lessons', icon: '🏆', xpReward: 800, coinReward: 200, condition: 'lessons >= 100' },
+  
+  // Island milestones
+  { id: 'first_island', name: 'Island Explorer', description: 'Complete your first island', icon: '🏝️', xpReward: 100, coinReward: 25, condition: 'islands >= 1' },
   { id: 'loop_master', name: 'Loop Master', description: 'Complete Loops Island', icon: '💚', xpReward: 200, coinReward: 50, condition: 'island >= 3' },
   { id: 'logic_wizard', name: 'Logic Wizard', description: 'Complete Conditions Island', icon: '🔴', xpReward: 250, coinReward: 60, condition: 'island >= 4' },
   { id: 'island_conqueror', name: 'Island Conqueror', description: 'Complete 5 islands', icon: '🔵', xpReward: 500, coinReward: 100, condition: 'islands >= 5' },
   { id: 'archipelago_champion', name: 'Archipelago Champion', description: 'Complete all 10 islands!', icon: '👑', xpReward: 1000, coinReward: 250, condition: 'islands >= 10' },
+  
+  // Streak achievements
+  { id: 'streak_3', name: 'On a Roll', description: '3-day learning streak', icon: '🔥', xpReward: 50, coinReward: 10, condition: 'streak >= 3' },
   { id: 'streak_7', name: 'Week Warrior', description: '7-day learning streak', icon: '🔥', xpReward: 150, coinReward: 30, condition: 'streak >= 7' },
+  { id: 'streak_14', name: 'Fortnight Fighter', description: '14-day learning streak', icon: '💪', xpReward: 300, coinReward: 60, condition: 'streak >= 14' },
+  { id: 'streak_30', name: 'Monthly Master', description: '30-day learning streak', icon: '🏅', xpReward: 500, coinReward: 100, condition: 'streak >= 30' },
+  
+  // Quiz achievements
   { id: 'quiz_perfect', name: 'Perfect Score', description: 'Get 100% on a quiz', icon: '💯', xpReward: 75, coinReward: 20, condition: 'perfect_quiz' },
+  { id: 'quiz_ace', name: 'Quiz Ace', description: 'Get 100% on 5 quizzes', icon: '🎯', xpReward: 200, coinReward: 50, condition: 'perfect_quizzes >= 5' },
+  { id: 'quiz_champion', name: 'Quiz Champion', description: 'Get 100% on 10 quizzes', icon: '🥇', xpReward: 400, coinReward: 100, condition: 'perfect_quizzes >= 10' },
+  
+  // XP milestones
+  { id: 'xp_100', name: 'XP Hunter', description: 'Earn 100 XP', icon: '✨', xpReward: 25, coinReward: 5, condition: 'xp >= 100' },
+  { id: 'xp_500', name: 'XP Collector', description: 'Earn 500 XP', icon: '💎', xpReward: 50, coinReward: 10, condition: 'xp >= 500' },
+  { id: 'xp_1000', name: 'XP Master', description: 'Earn 1000 XP', icon: '🔮', xpReward: 100, coinReward: 25, condition: 'xp >= 1000' },
+  { id: 'xp_5000', name: 'XP Legend', description: 'Earn 5000 XP', icon: '🌈', xpReward: 250, coinReward: 50, condition: 'xp >= 5000' },
+  
+  // Coin milestones
+  { id: 'coins_100', name: 'Coin Collector', description: 'Earn 100 coins', icon: '🪙', xpReward: 50, coinReward: 10, condition: 'coins >= 100' },
+  { id: 'coins_500', name: 'Coin Hoarder', description: 'Earn 500 coins', icon: '💰', xpReward: 100, coinReward: 25, condition: 'coins >= 500' },
+  { id: 'coins_1000', name: 'Rich Coder', description: 'Earn 1000 coins', icon: '🤑', xpReward: 200, coinReward: 50, condition: 'coins >= 1000' },
+  
+  // Special achievements
+  { id: 'night_owl', name: 'Night Owl', description: 'Complete a lesson after 10 PM', icon: '🦉', xpReward: 50, coinReward: 10, condition: 'night_lesson' },
+  { id: 'early_bird', name: 'Early Bird', description: 'Complete a lesson before 7 AM', icon: '🐦', xpReward: 50, coinReward: 10, condition: 'morning_lesson' },
+  { id: 'speed_demon', name: 'Speed Demon', description: 'Complete a lesson in under 5 minutes', icon: '⚡', xpReward: 75, coinReward: 15, condition: 'fast_lesson' },
+  { id: 'shopaholic', name: 'Shopaholic', description: 'Purchase 3 items from the shop', icon: '🛒', xpReward: 100, coinReward: 25, condition: 'purchases >= 3' },
+  { id: 'avatar_collector', name: 'Avatar Collector', description: 'Own 5 different avatars', icon: '👤', xpReward: 150, coinReward: 30, condition: 'avatars >= 5' },
+  { id: 'theme_master', name: 'Theme Master', description: 'Own 5 different themes', icon: '🎨', xpReward: 150, coinReward: 30, condition: 'themes >= 5' },
 ];
 
 // ─── DEMO USER ────────────────────────────────────────────────────────────────

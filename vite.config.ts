@@ -150,7 +150,24 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Vite plugin to copy 404.html for GitHub Pages SPA routing
+ */
+function vitePluginCopy404(): Plugin {
+  return {
+    name: "copy-404-html",
+    closeBundle() {
+      const src = path.resolve(import.meta.dirname, "client", "404.html");
+      const dest = path.resolve(import.meta.dirname, "dist", "public", "404.html");
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, dest);
+        console.log("✓ Copied 404.html to dist/public/");
+      }
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginCopy404()];
 
 export default defineConfig({
   plugins,

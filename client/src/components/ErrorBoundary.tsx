@@ -25,7 +25,7 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to console for debugging
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    this.setState({ errorInfo: errorInfo.componentStack });
+    this.setState({ errorInfo: errorInfo.componentStack || null });
   }
 
   handleReload = () => {
@@ -33,7 +33,7 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = () => {
-    window.location.href = '/';
+    window.location.href = '/Dao-Yu-101-V2/';
   };
 
   render() {

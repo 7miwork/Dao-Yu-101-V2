@@ -2,6 +2,15 @@
 <html lang="en">
 
   <head>
+    <script>
+      (function() {
+        const redirect = sessionStorage.redirect;
+        if (redirect) {
+          sessionStorage.removeItem('redirect');
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -16,21 +25,6 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Redirect from 404.html for GitHub Pages SPA routing -->
-    <script>
-      // Single Page Apps for GitHub Pages
-      // https://github.com/rafgraph/spa-github-pages
-      (function(l) {
-        if (l.search[1] === '/') {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
-    </script>
   </body>
 
 </html>

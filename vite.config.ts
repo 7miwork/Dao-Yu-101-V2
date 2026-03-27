@@ -158,10 +158,13 @@ function vitePluginCopy404(): Plugin {
     name: "copy-404-html",
     closeBundle() {
       const src = path.resolve(import.meta.dirname, "client", "404.html");
-      const dest = path.resolve(import.meta.dirname, "dist", "public", "404.html");
+      const outDir = process.env.NODE_ENV === 'production' 
+        ? path.resolve(import.meta.dirname, "docs")
+        : path.resolve(import.meta.dirname, "dist", "public");
+      const dest = path.resolve(outDir, "404.html");
       if (fs.existsSync(src)) {
         fs.copyFileSync(src, dest);
-        console.log("✓ Copied 404.html to dist/public/");
+        console.log(`✓ Copied 404.html to ${outDir}/`);
       }
     },
   };
@@ -182,7 +185,9 @@ export default defineConfig({
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: process.env.NODE_ENV === 'production' 
+      ? path.resolve(import.meta.dirname, "docs")
+      : path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
   server: {
